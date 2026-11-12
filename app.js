@@ -2,8 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const data = window.IGNITE_DATA;
   const videoPlayer = new window.IgniteVideoPlayer();
 
-  // Tab navigation
-  const navTabs = document.querySelectorAll('.nav-tab');
+  // Unified Tab Navigation (Desktop Top Bar + Mobile Bottom Bar)
+  const navTabs = document.querySelectorAll('.nav-tab, .mob-nav-item');
   const tabPanels = document.querySelectorAll('.tab-panel');
 
   function switchTab(tabId) {
@@ -12,14 +12,25 @@ document.addEventListener('DOMContentLoaded', () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  window.switchMainTab = switchTab;
+
   navTabs.forEach(tab => {
     tab.addEventListener('click', () => switchTab(tab.dataset.tab));
   });
 
-  // Helper to jump to a video in the Video Player panel or top mini-player
+  // Helper to jump straight to a video walkthrough
   window.watchGuideVideo = function(videoId) {
     switchTab('videos');
     videoPlayer.loadVideo(videoId, true);
+  };
+
+  // Toggle Setup vs Repair inside a console card (great for narrow phone screens)
+  window.setConsoleMode = function(key, mode, btnEl) {
+    const sec = document.getElementById(`section-${key}`);
+    if (!sec) return;
+    sec.setAttribute('data-view-mode', mode);
+    sec.querySelectorAll('.mode-pill-btn').forEach(b => b.classList.remove('active'));
+    if (btnEl) btnEl.classList.add('active');
   };
 
   // Render Respawn (Gaming) Console Sub-Tabs & Content
@@ -47,25 +58,32 @@ document.addEventListener('DOMContentLoaded', () => {
     consolesContainer.innerHTML = blocks.map(({ key, icon, colorClass }) => {
       const item = data.respawnGuide.consoles[key];
       return `
-        <div class="console-section ${colorClass}" id="section-${key}">
+        <div class="console-section ${colorClass}" id="section-${key}" data-console-key="${key}" data-view-mode="both">
           <div class="console-header">
-            <div>
+            <div class="console-heading-group">
               <span class="badge-pill">${item.badge}</span>
               <h3>${icon} ${item.name}</h3>
             </div>
             <div class="console-actions">
               <button class="btn-primary" onclick="window.watchGuideVideo('${item.videoId}')">
-                ▶ Watch Animated Setup Video
+                ▶ Setup Video
               </button>
               <a class="btn-secondary" href="${item.youtubeQuery}" target="_blank" rel="noopener">
-                📺 Open YouTube Tutorials ↗
+                📺 YouTube ↗
               </a>
             </div>
           </div>
 
+          <!-- Mobile Sub-Mode Toggle (Setup vs Repairs) -->
+          <div class="mobile-mode-bar">
+            <button class="mode-pill-btn active" onclick="window.setConsoleMode('${key}', 'both', this)">All</button>
+            <button class="mode-pill-btn" onclick="window.setConsoleMode('${key}', 'setup', this)">⚡ Setup (${item.steps.length})</button>
+            <button class="mode-pill-btn" onclick="window.setConsoleMode('${key}', 'repair', this)">🔧 Repairs (${item.repairs.length})</button>
+          </div>
+
           <div class="two-col-grid">
             <div class="steps-column">
-              <h4>⚡ Step-by-Step Setup (Power → HDMI → Wi-Fi → Game Ready)</h4>
+              <h4 class="sub-col-heading">⚡ Step-by-Step Setup (Power → HDMI → Wi-Fi → Game)</h4>
               <div class="step-list">
                 ${item.steps.map((s, idx) => `
                   <label class="interactive-step">
@@ -80,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
 
             <div class="repairs-column">
-              <h4>🔧 Instant On-Site Repair & Troubleshooting</h4>
+              <h4 class="sub-col-heading">🔧 Instant On-Site Repair &amp; Troubleshooting</h4>
               <div class="repair-list">
                 ${item.repairs.map(r => `
                   <div class="repair-card">
@@ -94,6 +112,19 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       `;
     }).join('');
+
+    // Console platform filter buttons (All / Xbox / PS4 / PC)
+    const filterBtns = document.querySelectorAll('.console-filter-btn');
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const target = btn.dataset.consoleFilter;
+        document.querySelectorAll('.console-section').forEach(sec => {
+          sec.style.display = (target === 'all' || sec.dataset.consoleKey === target) ? '' : 'none';
+        });
+      });
+    });
   }
 
   // Render Video Playlist & Interactive Port Trainer
@@ -114,6 +145,10 @@ document.addEventListener('DOMContentLoaded', () => {
       playlistEl.querySelectorAll('.video-playlist-item').forEach(item => {
         item.addEventListener('click', () => {
           videoPlayer.loadVideo(item.dataset.videoId, true);
+          if (window.innerWidth <= 768) {
+            const playerCard = document.querySelector('.video-player-card');
+            if (playerCard) playerCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
         });
       });
     }
@@ -137,16 +172,18 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="hw-ports-row">
             ${diag.ports.map((p, idx) => `
               <button class="hw-port-btn ${idx === 0 ? 'selected' : ''}" data-port-idx="${idx}" style="--port-color: ${p.color}">
-                <span class="port-led"></span>
+                <span class="port-top-line">
+                  <span class="port-led"></span>
+                  <span class="port-click-hint">Tap to inspect</span>
+                </span>
                 <span class="port-name">${p.label}</span>
-                <span class="port-click-hint">Click to Inspect</span>
               </button>
             `).join('')}
           </div>
         </div>
       `;
 
-      function showPortDetail(idx) {
+      function showPortDetail(idx, fromUserClick = false) {
         const port = diag.ports[idx];
         hwCanvasArea.querySelectorAll('.hw-port-btn').forEach((b, i) => {
           b.classList.toggle('selected', i === idx);
@@ -155,21 +192,24 @@ document.addEventListener('DOMContentLoaded', () => {
           hwDetailBox.innerHTML = `
             <div class="port-detail-card" style="border-left: 4px solid ${port.color}">
               <div class="pd-title" style="color: ${port.color}">${port.label}</div>
-              <div class="pd-row"><strong>🔌 What Plugs In Here:</strong> ${port.cable}</div>
-              <div class="pd-row"><strong>📋 Setup Action:</strong> ${port.instruction}</div>
-              <div class="pd-row pd-warn"><strong>🚫 Common Mistake to Avoid:</strong> ${port.mistake}</div>
+              <div class="pd-row"><strong>🔌 Cable:</strong> ${port.cable}</div>
+              <div class="pd-row"><strong>📋 Action:</strong> ${port.instruction}</div>
+              <div class="pd-row pd-warn"><strong>🚫 Avoid:</strong> ${port.mistake}</div>
             </div>
           `;
+          if (fromUserClick && window.innerWidth <= 768) {
+            hwDetailBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
         }
       }
 
       hwCanvasArea.querySelectorAll('.hw-port-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-          showPortDetail(parseInt(btn.dataset.portIdx, 10));
+          showPortDetail(parseInt(btn.dataset.portIdx, 10), true);
         });
       });
 
-      showPortDetail(0);
+      showPortDetail(0, false);
     }
 
     hwSelector.forEach(btn => {
@@ -185,7 +225,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const q = search.trim().toLowerCase();
     const filtered = data.culturalEvents.filter(ev => {
-      const matchesFilter = filter === 'ALL' || ev.techLevel === filter;
+      const matchesFilter =
+        filter === 'ALL' ||
+        ev.techLevel === filter ||
+        (filter === 'MEDIUM' && (ev.techLevel === 'MEDIUM' || ev.techLevel === 'LOW'));
       const matchesSearch = !q ||
         ev.name.toLowerCase().includes(q) ||
         ev.venue.toLowerCase().includes(q) ||
@@ -197,33 +240,31 @@ document.addEventListener('DOMContentLoaded', () => {
     grid.innerHTML = filtered.map(ev => `
       <div class="event-card tech-${ev.techLevel.toLowerCase()}">
         <div class="event-card-top">
-          <div>
-            <span class="tech-badge level-${ev.techLevel.toLowerCase()}">TECH LOAD: ${ev.techLevel}</span>
-            <span class="venue-badge">📍 ${ev.venue}</span>
-          </div>
-          <span class="sched-badge">🕒 ${ev.schedule}</span>
+          <span class="tech-badge level-${ev.techLevel.toLowerCase()}">${ev.techLevel} TECH</span>
+          <span class="venue-badge">📍 ${ev.venue}</span>
         </div>
 
         <h3 class="event-title">${ev.name}</h3>
-        <div class="event-heads">👤 <strong>Event Heads:</strong> ${ev.heads}</div>
+        <div class="sched-badge">🕒 ${ev.schedule}</div>
+        <div class="event-heads">👤 <strong>Heads:</strong> ${ev.heads}</div>
         <p class="event-summary">${ev.summary}</p>
 
         <div class="event-hw-box">
-          <strong>🧰 Hardware & Tech Gear Needed:</strong>
+          <strong>🧰 Tech Gear:</strong>
           <div class="hw-tags">
             ${ev.hardwareList.map(h => `<span class="hw-tag">${h}</span>`).join('')}
           </div>
         </div>
 
         <div class="event-steps-box">
-          <strong>⚙️ Step-by-Step Tech Setup:</strong>
+          <strong>⚙️ Setup Checklist:</strong>
           <ul>
             ${ev.setupSteps.map(s => `<li>${s}</li>`).join('')}
           </ul>
         </div>
 
         <div class="event-fix-box">
-          <strong>🚑 Rapid Repair / Troubleshooting:</strong> ${ev.quickFix}
+          <strong>🚑 Quick Fix:</strong> ${ev.quickFix}
         </div>
       </div>
     `).join('');
@@ -256,17 +297,18 @@ document.addEventListener('DOMContentLoaded', () => {
     grid.innerHTML = data.sportsEvents.map(sp => `
       <div class="event-card tech-${sp.techLevel.toLowerCase()}">
         <div class="event-card-top">
-          <span class="tech-badge level-${sp.techLevel.toLowerCase()}">TECH LOAD: ${sp.techLevel}</span>
+          <span class="tech-badge level-${sp.techLevel.toLowerCase()}">${sp.techLevel} TECH</span>
           <span class="venue-badge">📍 ${sp.venue}</span>
         </div>
         <h3 class="event-title">${sp.name}</h3>
-        <div class="event-heads">👤 <strong>Event Heads:</strong> ${sp.heads} &nbsp;|&nbsp; 🏅 <strong>Format:</strong> ${sp.format}</div>
+        <div class="event-heads">👤 <strong>Heads:</strong> ${sp.heads}</div>
+        <div class="sched-badge">🏅 ${sp.format}</div>
         <div class="event-hw-box">
-          <strong>🔌 Required Sports Tech & Hardware:</strong>
-          <div style="margin-top:6px; color:#f8fafc;">${sp.hardware}</div>
+          <strong>🔌 Sports Tech &amp; Scoreboard Gear:</strong>
+          <div class="hw-plain-text">${sp.hardware}</div>
         </div>
         <div class="event-steps-box">
-          <strong>🛠️ Setup & Emergency Repair Protocol:</strong>
+          <strong>🛠️ Setup &amp; Repair Protocol:</strong>
           <ul>
             ${sp.setupAndRepair.map(s => `<li>${s}</li>`).join('')}
           </ul>
@@ -275,7 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
     `).join('');
   }
 
-  // Render Emergency Fix-It Wizard
+  // Render Emergency Fix-It Wizard & Volunteer Packing Kit
   function renderEmergencyFixes(search = '') {
     const container = document.getElementById('emergency-fixes-grid');
     if (!container) return;
@@ -293,11 +335,38 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="panic-card">
         <div class="panic-cat">${f.category}</div>
         <h4 class="panic-symptom">🚨 "${f.symptom}"</h4>
-        <div class="panic-cause"><strong>Root Cause:</strong> ${f.cause}</div>
+        <div class="panic-cause"><strong>Cause:</strong> ${f.cause}</div>
         <ol class="panic-steps">
           ${f.steps.map(st => `<li>${st}</li>`).join('')}
         </ol>
       </div>
+    `).join('');
+  }
+
+  function renderPackingList() {
+    const packGrid = document.getElementById('volunteer-pack-grid');
+    if (!packGrid) return;
+
+    const items = [
+      { id: 'sim-pin', cat: 'Pocket Lifesaver', name: 'SIM Ejector / Paperclip', desc: 'Presses the recessed reset pinhole on back of PS4 DualShock 4 (near L2 screw).' },
+      { id: 'usb-drive', cat: 'Pocket Lifesaver', name: '32GB+ exFAT USB Flash Drive', desc: 'Pre-load VLC Media Player installer (.exe & .dmg) + backup slides/films.' },
+      { id: 'micro-usb', cat: 'Respawn Cables', name: 'Micro-USB DATA Cable + USB-C Cable', desc: 'Pairs PS4 DualShock 4 & Xbox controllers instantly without batteries.' },
+      { id: 'hdmi-cable', cat: 'Respawn & AV', name: 'Spare High-Speed HDMI Cable + USB-C Hub', desc: 'Fixes 80% of projector/monitor "No Signal" errors and connects MacBooks.' },
+      { id: 'aux-dongle', cat: 'Stage Audio', name: '3.5mm Aux Cable + Phone Aux Dongle', desc: 'Connects laptops/phones (in Airplane Mode) to Amphitheatre & Auditorium mixers.' },
+      { id: 'aa-batts', cat: 'Power & Tape', name: '4–6 AA Batteries + Electrical Tape + Marker', desc: 'For Xbox controllers, wireless stage mics, and taping over Xbox HDMI IN.' },
+      { id: 'power-bank', cat: 'Power & Network', name: 'Power Bank (10,000mAh+) + Phone Hotspot', desc: 'Powers dead controllers mid-match and bypasses school Wi-Fi blocks.' },
+      { id: 'sd-reader', cat: 'Media & ID', name: 'SD Card Reader + School Uniform & ID Card', desc: 'Fast photo ingestion for Through the Lens + mandatory campus accreditation.' }
+    ];
+
+    packGrid.innerHTML = items.map(it => `
+      <label class="interactive-step pack-item">
+        <input type="checkbox" class="persist-check" data-check-id="pack-${it.id}">
+        <div class="step-body">
+          <div class="pack-cat-tag">${it.cat}</div>
+          <div class="step-title">${it.name}</div>
+          <div class="step-detail">${it.desc}</div>
+        </div>
+      </label>
     `).join('');
   }
 
@@ -325,7 +394,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const progEl = document.getElementById('readiness-progress-text');
     if (progEl && all.length > 0) {
       const pct = Math.round((done / all.length) * 100);
-      progEl.textContent = `${done}/${all.length} Setup Steps Checked (${pct}%)`;
+      progEl.textContent = `${done}/${all.length} Ready (${pct}%)`;
     }
   }
 
@@ -334,5 +403,6 @@ document.addEventListener('DOMContentLoaded', () => {
   renderCulturalEvents();
   renderSportsEvents();
   renderEmergencyFixes();
+  renderPackingList();
   bindCheckboxes();
 });

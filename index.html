@@ -2,38 +2,39 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IGNITE 2026 — A-to-Z Tech Volunteer Interactive & Video Guide</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>IGNITE 2026 — Tech Volunteer Guide</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-  <!-- Top Sticky Header -->
+  <!-- Top Sticky Header (Compact on Mobile, Full on Desktop) -->
   <header class="top-header">
     <div class="header-inner">
       <div class="brand-area">
-        <div class="phoenix-badge">🔥</div>
+        <div class="phoenix-badge" aria-hidden="true">🔥</div>
         <div class="brand-text">
-          <h1>IGNITE 2026 — Tech Volunteer Command Center</h1>
-          <p>Greenwood High International School, Bangalore · Fri 13 &amp; Sat 14 Nov 2026 · Complete Hardware Setup &amp; Repair Guide</p>
+          <div class="brand-eyebrow">GREENWOOD HIGH · 13–14 NOV 2026</div>
+          <h1>IGNITE 2026 Tech Guide</h1>
+          <p class="desktop-only-sub">Complete Hardware Setup, Audio/Video Routing &amp; On-Site Repair Command Center</p>
         </div>
       </div>
 
       <div class="header-status">
-        <span class="status-pill" id="readiness-progress-text">0/15 Setup Steps Checked (0%)</span>
-        <button class="panic-btn-top" onclick="document.querySelector('[data-tab=panic]').click()">
-          🚨 Something Broke! (Instant Fix Wizard)
+        <span class="status-pill" id="readiness-progress-text">0/15 Ready</span>
+        <button class="panic-btn-top" onclick="window.switchMainTab('panic')">
+          🚨 <span class="panic-btn-text">Fix-It Wizard</span>
         </button>
       </div>
     </div>
 
-    <!-- Main Navigation Tabs -->
-    <nav class="nav-bar">
-      <button class="nav-tab active" data-tab="respawn">🎮 1. Respawn (Xbox, PS4 &amp; PC Gaming)</button>
-      <button class="nav-tab" data-tab="videos">🎬 2. Interactive Video Guides &amp; Port Trainer</button>
-      <button class="nav-tab" data-tab="cultural">🎭 3. All 12 Cultural Events (PA, Projectors &amp; Tech)</button>
-      <button class="nav-tab" data-tab="sports">🏆 4. All 8 Sporting Events (Shot Clocks &amp; Range)</button>
-      <button class="nav-tab" data-tab="panic">🚨 5. Emergency Repair Playbook (A–Z)</button>
+    <!-- Desktop Navigation Tabs -->
+    <nav class="nav-bar desktop-nav" aria-label="Main Navigation">
+      <button class="nav-tab active" data-tab="respawn">🎮 1. Respawn (Xbox, PS4 &amp; PC)</button>
+      <button class="nav-tab" data-tab="videos">🎬 2. Video Guides &amp; Port Trainer</button>
+      <button class="nav-tab" data-tab="cultural">🎭 3. Cultural Events (12)</button>
+      <button class="nav-tab" data-tab="sports">🏆 4. Sporting Events (8)</button>
+      <button class="nav-tab" data-tab="panic">🚨 5. Emergency Repairs &amp; Pack List</button>
     </nav>
   </header>
 
@@ -42,15 +43,27 @@
     <!-- PANEL 1: RESPAWN (GAMING) -->
     <section class="tab-panel active" id="panel-respawn">
       <div class="section-banner">
-        <h2>🎮 Priority #1: RESPAWN (E-Sports Tournament) — Senior IT Lab 1 &amp; 2</h2>
-        <p>
-          <strong>Schedule:</strong> Day 1 (09:30 AM – 03:00 PM) &amp; Day 2 (09:00 AM – 01:30 PM) &nbsp;|&nbsp;
-          <strong>Event Heads:</strong> Vivaan Srivastava, Arpit Kumar &amp; Tabashmi Bhattacharya<br>
-          Complete hardware-first walkthrough to get the existing <strong>Xbox</strong> and tomorrow's <strong>PS4</strong> wired from power to HDMI to Wi-Fi, controllers paired, and <strong>EA FC / FIFA</strong>, <strong>Minecraft</strong>, and <strong>Roblox</strong> running smoothly.Check off each box as you set up!
+        <div class="banner-eyebrow">PRIORITY #1 · SENIOR IT LAB 1 &amp; 2</div>
+        <h2>🎮 Respawn — E-Sports Hardware Setup</h2>
+        <div class="banner-meta-pills">
+          <span class="meta-chip">🕒 Day 1: 09:30–03:00</span>
+          <span class="meta-chip">🕒 Day 2: 09:00–01:30</span>
+          <span class="meta-chip">👤 Vivaan, Arpit &amp; Tabashmi</span>
+        </div>
+        <p class="banner-desc">
+          Step-by-step guide to wire the <strong>Xbox</strong> and tomorrow's <strong>PS4</strong> from power to HDMI to Wi-Fi, pair 2 controllers per station, and launch <strong>EA FC / FIFA</strong>, <strong>Minecraft</strong>, and <strong>Roblox</strong>.
         </p>
       </div>
 
-      <!-- 3 Games Overview -->
+      <!-- Mobile-Friendly Console Switcher Bar -->
+      <div class="console-switcher-bar" role="tablist" aria-label="Filter Gaming Platform">
+        <button class="console-filter-btn active" data-console-filter="all">All Platforms</button>
+        <button class="console-filter-btn" data-console-filter="xbox">🟢 Xbox Only</button>
+        <button class="console-filter-btn" data-console-filter="ps4">🔵 PS4 Only</button>
+        <button class="console-filter-btn" data-console-filter="pcNetwork">🌐 PC &amp; LAN</button>
+      </div>
+
+      <!-- 3 Games Overview (Collapsible/Compact on Mobile) -->
       <div class="games-grid" id="respawn-games-grid"></div>
 
       <!-- Xbox, PS4, and PC Network Sections -->
@@ -60,21 +73,23 @@
     <!-- PANEL 2: INTERACTIVE VIDEO GUIDES & HARDWARE PORT TRAINER -->
     <section class="tab-panel" id="panel-videos">
       <div class="section-banner">
-        <h2>🎬 Interactive Video Walkthroughs &amp; Clickable Hardware Port Trainer</h2>
-        <p>
-          Watch step-by-step animated hardware setup videos (works 100% offline inside the school IT Lab with optional voiceover narration &amp; Picture-in-Picture), or click to open external YouTube tutorials. Below the player, click any port on the Xbox, PS4, Audio Mixer, or Projector to inspect cables and avoid common mistakes.
+        <div class="banner-eyebrow">OFFLINE-READY VISUAL WALKTHROUGHS</div>
+        <h2>🎬 Interactive Video Guides &amp; Port Trainer</h2>
+        <p class="banner-desc">
+          Tap play to watch step-by-step animated hardware connections with optional voiceover, or tap any port below to inspect cables and avoid common mistakes.
         </p>
       </div>
 
       <div class="video-studio-grid">
         <div class="video-player-card">
-          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
-            <div>
-              <h3 id="vid-active-title" style="color:#fff; font-size:1.15rem;">Loading Video...</h3>
-              <p id="vid-active-summary" style="color:#94a3b8; font-size:0.85rem;"></p>
+          <div class="video-card-header">
+            <div class="video-title-block">
+              <span class="video-step-tag">ACTIVE MODULE</span>
+              <h3 id="vid-active-title">Loading Video...</h3>
+              <p id="vid-active-summary"></p>
             </div>
-            <a id="vid-yt-link" href="#" target="_blank" rel="noopener" class="btn-secondary">
-              📺 Watch on YouTube ↗
+            <a id="vid-yt-link" href="#" target="_blank" rel="noopener" class="btn-secondary yt-btn">
+              📺 YouTube ↗
             </a>
           </div>
 
@@ -84,35 +99,40 @@
           </div>
 
           <div class="video-controls-bar">
-            <button class="btn-primary" id="vid-play-btn">▶ Play Video</button>
-            <input type="range" id="vid-scrubber" min="0" max="100" value="0" step="0.5">
-            <span id="vid-time-label">00:00 / 00:28</span>
-            <button class="ctrl-btn" id="vid-speed-btn" title="Playback Speed">1x</button>
-            <button class="ctrl-btn" id="vid-voice-btn" title="Toggle Voiceover Narration">🔇 Voice: OFF</button>
-            <button class="ctrl-btn" id="vid-pip-btn" title="Pop out Video in Picture-in-Picture">⧉ PiP</button>
+            <div class="scrubber-row">
+              <input type="range" id="vid-scrubber" min="0" max="100" value="0" step="0.5" aria-label="Video timeline">
+              <span id="vid-time-label">00:00 / 00:28</span>
+            </div>
+            <div class="transport-btns-row">
+              <button class="btn-primary play-main-btn" id="vid-play-btn">▶ Play Video</button>
+              <button class="ctrl-btn" id="vid-speed-btn" title="Playback Speed">1x</button>
+              <button class="ctrl-btn" id="vid-voice-btn" title="Toggle Voiceover Narration">🔇 Voice</button>
+              <button class="ctrl-btn" id="vid-pip-btn" title="Picture-in-Picture">⧉ PiP</button>
+            </div>
           </div>
 
           <div class="chapters-row" id="vid-chapters"></div>
         </div>
 
         <div class="video-playlist-box">
-          <h3 style="margin-bottom:12px; color:var(--gold); font-size:1.05rem;">📂 6 Event Setup &amp; Repair Video Modules</h3>
-          <div id="video-playlist"></div>
+          <h3 class="box-heading">📂 Select Video Module (6)</h3>
+          <div id="video-playlist" class="video-playlist-scroll"></div>
         </div>
       </div>
 
       <!-- Interactive Hardware Port Trainer -->
       <div class="hw-inspector-card">
-        <h3>🔌 Interactive Hardware Back-Panel &amp; Port Inspector</h3>
-        <p style="color:#cbd5e1; font-size:0.9rem;">
-          New to arranging physical hardware? Select a device below and click on any port or knob section to see exactly what cable goes where and the #1 mistake to avoid.
+        <div class="banner-eyebrow">CLICKABLE BACK-PANEL TRAINER</div>
+        <h3 class="inspector-heading">🔌 Hardware Port &amp; Mixer Inspector</h3>
+        <p class="inspector-sub">
+          Tap a device below, then tap any colored port to see which cable plugs in and the #1 mistake to avoid.
         </p>
 
         <div class="hw-selector-bar">
-          <button class="hw-select-btn active" data-hw="xbox">🟢 Xbox Console Rear/Front</button>
-          <button class="hw-select-btn" data-hw="ps4">🔵 PS4 Console &amp; DualShock 4</button>
-          <button class="hw-select-btn" data-hw="mixer">🎛️ Stage PA Audio Mixer &amp; DI Box</button>
-          <button class="hw-select-btn" data-hw="projector">📽️ Auditorium Projector &amp; Screening Rig</button>
+          <button class="hw-select-btn active" data-hw="xbox">🟢 Xbox Ports</button>
+          <button class="hw-select-btn" data-hw="ps4">🔵 PS4 &amp; Controller</button>
+          <button class="hw-select-btn" data-hw="mixer">🎛️ PA Audio Mixer</button>
+          <button class="hw-select-btn" data-hw="projector">📽️ Projector Rig</button>
         </div>
 
         <div id="hw-diagram-area"></div>
@@ -123,18 +143,19 @@
     <!-- PANEL 3: ALL 12 CULTURAL EVENTS -->
     <section class="tab-panel" id="panel-cultural">
       <div class="section-banner">
-        <h2>🎭 All 12 Cultural Events — Complete Tech Setup &amp; Repair Guide</h2>
-        <p>
-          Every cultural event from <strong>gwhignite.in</strong> ranked by Tech Dependency (Critical, High, Medium, Low), including Opening &amp; Valedictory Ceremonies at the IB Amphitheatre.
+        <div class="banner-eyebrow">12 EVENTS · RANKED BY TECH INTENSITY</div>
+        <h2>🎭 Cultural Events — Setup &amp; Repair</h2>
+        <p class="banner-desc">
+          Filter by tech load or search any venue, microphone, DI box, or projector setup across all 12 cultural events.
         </p>
       </div>
 
       <div class="filter-bar">
         <div class="filter-btns">
-          <button class="cult-filter-btn active" data-filter="ALL">All 12 Events</button>
-          <button class="cult-filter-btn" data-filter="CRITICAL">🔥 Critical Tech (Respawn / Bands / Film)</button>
-          <button class="cult-filter-btn" data-filter="HIGH">⚡ High Tech (Wolf / Dance / Vocals / Fashion)</button>
-          <button class="cult-filter-btn" data-filter="MEDIUM">🛠️ Medium/Low Tech</button>
+          <button class="cult-filter-btn active" data-filter="ALL">All (12)</button>
+          <button class="cult-filter-btn" data-filter="CRITICAL">🔥 Critical</button>
+          <button class="cult-filter-btn" data-filter="HIGH">⚡ High</button>
+          <button class="cult-filter-btn" data-filter="MEDIUM">🛠️ Med/Low</button>
         </div>
         <input type="text" id="cultural-search" class="search-input" placeholder="🔍 Search event, venue, mic, projector...">
       </div>
@@ -145,33 +166,71 @@
     <!-- PANEL 4: ALL 8 SPORTING EVENTS -->
     <section class="tab-panel" id="panel-sports">
       <div class="section-banner">
-        <h2>🏆 All 8 Championship Sporting Events — Scoreboards, Shot Clocks, 10m Range &amp; Turf PA</h2>
-        <p>
-          <strong>Sports Heads:</strong> Hiba Gabriel, Rishabh Kamani, Akshita Rai, Nivaan Abraham.<br>
-          Focus heavily on <strong>Basketball</strong> (24s/14s FIBA Shot Clock), <strong>10m Air Rifle &amp; Air Pistol Shooting</strong> (Electronic Targets &amp; RSO PA), and <strong>Football / Tennis</strong> (Floodlights &amp; Outdoor Wireless PA).
+        <div class="banner-eyebrow">8 CHAMPIONSHIP TOURNAMENTS</div>
+        <h2>🏆 Sports — Shot Clocks, 10m Range &amp; PA</h2>
+        <div class="banner-meta-pills">
+          <span class="meta-chip">🏀 FIBA 24s/14s Clock</span>
+          <span class="meta-chip">🎯 10m Electronic Targets</span>
+          <span class="meta-chip">⚽ Floodlights &amp; Turf PA</span>
+        </div>
+        <p class="banner-desc">
+          Complete setup and emergency fallback rules for Basketball, 10m Shooting, Football, Flag Football, Volleyball, Badminton, Table Tennis, and Tennis.
         </p>
       </div>
 
       <div class="events-grid" id="sports-events-grid"></div>
     </section>
 
-    <!-- PANEL 5: EMERGENCY PANIC WIZARD -->
+    <!-- PANEL 5: EMERGENCY PANIC WIZARD & PACKING CHECKLIST -->
     <section class="tab-panel" id="panel-panic">
       <div class="section-banner">
-        <h2>🚨 30-Second Emergency Repair Wizard ("What's Broken Right Now?")</h2>
-        <p>
-          Type what's going wrong (e.g., <em>"no signal"</em>, <em>"controller"</em>, <em>"no sound"</em>, <em>"feedback"</em>, <em>"minecraft"</em>, <em>"shot clock"</em>) for an immediate 3-step fix.
+        <div class="banner-eyebrow">INSTANT ON-SITE TROUBLESHOOTING</div>
+        <h2>🚨 30-Second Fix-It Wizard &amp; Pack List</h2>
+        <p class="banner-desc">
+          Search any symptom below (e.g., <em>"no signal"</em>, <em>"controller"</em>, <em>"no sound"</em>, <em>"feedback"</em>) for an immediate 3-step fix, or check off your volunteer backpack kit.
         </p>
       </div>
 
-      <div style="margin-bottom:16px;">
-        <input type="text" id="panic-search" class="search-input" style="width:100%; max-width:520px;" placeholder="🔍 Type symptom (e.g. 'PS4 controller', 'no sound on projector', 'hum', 'no signal')...">
+      <div class="search-wrap">
+        <input type="text" id="panic-search" class="search-input full-width-search" placeholder="🔍 Type what's broken (e.g. 'PS4 controller', 'no sound', 'hum', 'no signal')...">
       </div>
 
       <div class="panic-grid" id="emergency-fixes-grid"></div>
+
+      <!-- Volunteer Packing Checklist -->
+      <div class="pack-list-section">
+        <div class="banner-eyebrow">PRE-EVENT PREPARATION</div>
+        <h3 class="pack-heading">🎒 Tech Volunteer Pocket &amp; Backpack Kit</h3>
+        <p class="inspector-sub">Tap items to check them off as you pack tonight (saved automatically on your phone).</p>
+        <div class="pack-grid" id="volunteer-pack-grid"></div>
+      </div>
     </section>
 
   </main>
+
+  <!-- Mobile Fixed Bottom Navigation Bar -->
+  <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
+    <button class="mob-nav-item active" data-tab="respawn">
+      <span class="mob-icon">🎮</span>
+      <span class="mob-label">Respawn</span>
+    </button>
+    <button class="mob-nav-item" data-tab="videos">
+      <span class="mob-icon">🎬</span>
+      <span class="mob-label">Videos</span>
+    </button>
+    <button class="mob-nav-item" data-tab="cultural">
+      <span class="mob-icon">🎭</span>
+      <span class="mob-label">Cultural</span>
+    </button>
+    <button class="mob-nav-item" data-tab="sports">
+      <span class="mob-icon">🏆</span>
+      <span class="mob-label">Sports</span>
+    </button>
+    <button class="mob-nav-item" data-tab="panic">
+      <span class="mob-icon">🚨</span>
+      <span class="mob-label">Fix &amp; Pack</span>
+    </button>
+  </nav>
 
   <script src="data.js"></script>
   <script src="video-engine.js"></script>
